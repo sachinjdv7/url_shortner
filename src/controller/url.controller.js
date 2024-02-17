@@ -2,10 +2,6 @@ const shortid = require("shortid");
 const Url = require("../models/url.model");
 
 const handleGenerateNewShortURL = async (req, res) => {
-  console.log(req.body.url);
-  console.log(
-    `URL:  ${req.url}, Method:  ${req.method}, Timestamp: ${new Date()}`
-  );
   const body = req.body;
   if (!body.url) return res.status(400).json({ error: "url is required" });
 
@@ -22,7 +18,6 @@ const handleGenerateNewShortURL = async (req, res) => {
 
 const handleGetUrlById = async (req, res) => {
   const shortId = req.params.shortId;
-  console.log(shortId);
   const entry = await Url.findOneAndUpdate(
     {
       shortId,
@@ -35,10 +30,21 @@ const handleGetUrlById = async (req, res) => {
       },
     }
   );
+
   res.redirect(entry.redirectURL);
+};
+
+const handleGetUrlClicks = async (req, res) => {
+  const shortId = req.params.shortId;
+  const result = await Url.findOne({ shortId });
+  return res.json({
+    totalClicks: result.visitHistory.length,
+    analytics: result.visitHistory,
+  });
 };
 
 module.exports = {
   handleGenerateNewShortURL,
   handleGetUrlById,
+  handleGetUrlClicks,
 };
